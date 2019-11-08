@@ -1,8 +1,9 @@
 ---
-sudo: required
-
-services:
+os: linux
+serrvices:
   - docker
+language: python
+python: 3.8
 
 env:
   - BUILD_TAG=centos7
