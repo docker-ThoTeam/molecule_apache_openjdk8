@@ -12,6 +12,6 @@ env:
   - BUILD_TAG=ubuntu_18.04
 
 script: |
-  docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG}
-  docker login -u ${GITHUB_USER} -p ${GITHUB_PASSWORD}
+  docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG} .
+  echo ${GITHUB_PASSWORD} | docker login -u ${GITHUB_USER} --password-stdin
   docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG}
