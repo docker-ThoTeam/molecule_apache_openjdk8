@@ -5,10 +5,10 @@ services:
   - docker
 
 env:
-  # - BUILD_TAG=centos7
-  # - BUILD_TAG=debian_jessie
-  # - BUILD_TAG=debian_stretch
-  # - BUILD_TAG=ubuntu_16.04
+  - BUILD_TAG=centos7
+  - BUILD_TAG=debian_jessie
+  - BUILD_TAG=debian_stretch
+  - BUILD_TAG=ubuntu_16.04
   - BUILD_TAG=ubuntu_18.04
 
 script: |
