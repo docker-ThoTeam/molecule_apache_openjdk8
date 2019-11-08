@@ -20,7 +20,8 @@ Expire-Date: 0
 %echo done
 EOF
 
-key=$(gpg --no-auto-check-trustdb --list-secret-keys | grep ^sec | cut -d/ -f2 | cut -d" " -f1)
+key=$(gpg --list-secret-keys --with-colons 2> /dev/null | grep '^sec:' | cut --delimiter ':' --fields 5)
+
 pass init $key
 
 mkdir -p ~/.docker
