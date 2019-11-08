@@ -6,8 +6,6 @@ curl -fsSL "https://github.com/docker/docker-credential-helpers/releases/downloa
 chmod +x $(pwd)/docker-credential-pass
 sudo mv $(pwd)/docker-credential-pass /usr/bin
 
-$keypass=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 20 ; echo '')
-
 gpg --batch --gen-key <<-EOF
 %echo Generating a standard key
 %no-protection
