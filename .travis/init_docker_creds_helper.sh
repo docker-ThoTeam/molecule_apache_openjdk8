@@ -4,6 +4,7 @@ set -ex
 
 curl -fsSL "https://github.com/docker/docker-credential-helpers/releases/download/v0.6.3/docker-credential-pass-v0.6.3-amd64.tar.gz" | tar zxv
 chmod + $(pwd)/docker-credential-pass
+export PATH=$PATH:$(pwd)
 
 gpg --batch --gen-key <<-EOF
 %echo Generating a standard key
