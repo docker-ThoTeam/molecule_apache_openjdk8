@@ -1,0 +1,17 @@
+---
+sudo: required
+
+services:
+  - docker
+
+env:
+  # - BUILD_TAG=centos7
+  # - BUILD_TAG=debian_jessie
+  # - BUILD_TAG=debian_stretch
+  # - BUILD_TAG=ubuntu_16.04
+  - BUILD_TAG=ubuntu_18.04
+
+script: |
+  docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG}
+  docker login ${GITHUB_USER} ${GITHUB_PASSWORD}
+  docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG}
