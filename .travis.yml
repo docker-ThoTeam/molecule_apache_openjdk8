@@ -1,6 +1,6 @@
 ---
 os: linux
-serrvices: docker
+services: docker
 language: minimal
 
 addons:
