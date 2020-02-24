@@ -12,6 +12,7 @@ install: skip
 
 env:
   - BUILD_TAG=centos7
+  - BUILD_TAG=centos8
   - BUILD_TAG=debian_stretch
   - BUILD_TAG=debian_buster
   - BUILD_TAG=ubuntu_16.04
