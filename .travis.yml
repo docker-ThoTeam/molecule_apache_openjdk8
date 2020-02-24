@@ -18,7 +18,13 @@ env:
   - BUILD_TAG=ubuntu_16.04
   - BUILD_TAG=ubuntu_18.04
 
-script: |
-  docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG} . \
-  && echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USER} --password-stdin \
-  && docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG}
+stages:
+  - name: buildImage
+    script: |
+      docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG} .
+  - name: pushImage
+    if: branch = master
+    script: |
+      echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USER} --password-stdin \
+      && docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG} \
+      && docker logout
