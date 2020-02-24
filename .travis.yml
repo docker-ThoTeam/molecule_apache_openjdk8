@@ -20,5 +20,5 @@ env:
 
 script: |
   docker build -f Dockerfile-${BUILD_TAG} -t thoteam/molecule_apache_openjdk8:${BUILD_TAG} . \
-  && echo ${GITHUB_PASSWORD} | docker login -u ${GITHUB_USER} --password-stdin \
+  && echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USER} --password-stdin \
   && docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG}
