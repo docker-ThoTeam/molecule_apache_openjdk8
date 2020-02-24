@@ -1,0 +1,4 @@
+#!/bin/bash
+echo ${DOCKERHUB_TOKEN} | docker login -u ${DOCKERHUB_USER} --password-stdin
+docker push thoteam/molecule_apache_openjdk8:${BUILD_TAG}
+docker logout
