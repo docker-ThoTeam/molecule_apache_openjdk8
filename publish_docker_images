@@ -1,0 +1,28 @@
+#!/bin/bash
+tags=(
+  centos7
+  debian_buster
+  debian_bullseye
+  ubuntu_20.04
+  ubuntu_22.04
+)
+
+# Make sure we use buildkit
+export DOCKER_BUILDKIT=1
+
+# Make sure we are logged in
+# !!! DOCKERHUB_USER must be set in the environment
+# !!! DOCKERHUB_VAULT_ID must be set in the environment
+# !!! vault-keyring-client must be installed
+# !!! a password for DOCKERHUB_VAULT_ID must be set in keyring
+echo $(vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID}) | docker login -u ${DOCKERHUB_USER} --password-stdin
+
+# Build and push images if needed
+for tag in "${tags[@]}"; do
+  docker pull thoteam/molecule_apache_openjdk8:${tag}
+  docker build --pull --build-arg BUILDKIT_INLINE_CACHE=1 -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+  docker push thoteam/molecule_apache_openjdk8:${tag}
+done
+
+# Logout from github
+docker logout
