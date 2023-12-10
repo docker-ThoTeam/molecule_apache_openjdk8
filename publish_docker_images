@@ -3,6 +3,7 @@ tags=(
   centos7
   debian_buster
   debian_bullseye
+  debian_bookworm
   ubuntu_20.04
   ubuntu_22.04
 )
