@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 tags=(
   centos7
   debian_buster
@@ -10,6 +12,8 @@ tags=(
 
 # Make sure we use buildkit
 export DOCKER_BUILDKIT=1
+
+docker buildx prune -a -f
 
 # Build images from scratch
 for tag in "${tags[@]}"; do
