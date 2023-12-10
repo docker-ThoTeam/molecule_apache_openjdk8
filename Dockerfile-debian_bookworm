@@ -3,8 +3,8 @@ FROM debian:bookworm
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections && \
     apt-get update && \
     apt-get install -y apt-utils wget gnupg software-properties-common sudo && \
-    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | sudo apt-key add - && \
-    echo 'deb https://packages.adoptium.net/artifactory/deb bookworm main' > /etc/apt/sources.list.d/adoptium.list && \
+    wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public > /etc/apt/keyrings/adoptium.asc && \
+    echo 'deb [signed-by=/etc/apt/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb bookworm main' > /etc/apt/sources.list.d/adoptium.list && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
