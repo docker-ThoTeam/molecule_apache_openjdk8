@@ -11,6 +11,11 @@ tags=(
 # Make sure we use buildkit
 export DOCKER_BUILDKIT=1
 
+# Build images from scratch
+for tag in "${tags[@]}"; do
+  docker build --pull --no-cache -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+done
+
 # Make sure we are logged in
 # !!! DOCKERHUB_USER must be set in the environment
 # !!! DOCKERHUB_VAULT_ID must be set in the environment
@@ -18,10 +23,7 @@ export DOCKER_BUILDKIT=1
 # !!! a password for DOCKERHUB_VAULT_ID must be set in keyring
 echo $(vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID}) | docker login -u ${DOCKERHUB_USER} --password-stdin
 
-# Build and push images if needed
 for tag in "${tags[@]}"; do
-  docker pull thoteam/molecule_apache_openjdk8:${tag}
-  docker build --pull --build-arg BUILDKIT_INLINE_CACHE=1 -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
   docker push thoteam/molecule_apache_openjdk8:${tag}
 done
 
