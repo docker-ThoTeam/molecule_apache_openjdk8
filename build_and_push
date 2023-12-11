@@ -27,7 +27,7 @@ while getopts aplht: opt; do
     echo "-h: this help message"
     echo "-a: build all tags"
     echo "If you don't provide -a, list as mans [-t tagname] you want"
-    echo "taganames are ignored if -a is passed"
+    echo "tagnames are ignored if -a is passed"
     echo "All options (except -l and -h) are asked interactively if not provided"
     exit 0
   esac
