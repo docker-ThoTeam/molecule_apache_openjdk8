@@ -1,35 +1,98 @@
 #!/bin/bash
 set -e
 
-tags=(
-  centos7
-  debian_buster
-  debian_bullseye
-  debian_bookworm
-  ubuntu_20.04
-  ubuntu_22.04
-)
+declare -a build_tags
 
+while getopts aplht: opt; do
+  case $opt in
+  a)
+    build_all=y
+    ;;
+  p)
+    push_tags=y
+    ;;
+  n)
+    push_tags=n
+    ;;
+  l)
+    list_tags=y
+    ;;
+  t)
+    build_tags+=($OPTARG)
+    ;;
+  h)
+    echo "usage: $0 [-l] [-p|-n] ([-a] | [-t <tag1>] [-t <tag2>] ...) "
+    echo "-l: list tags and exit"
+    echo "-p|-n: push/don't push tags to dockerhub. If both provided latest wins"
+    echo "-h: this help message"
+    echo "-a: build all tags"
+    echo "If you don't provide -a, list as mans [-t tagname] you want"
+    echo "taganames are ignored if -a is passed"
+    echo "All options (except -l and -h) are asked interactively if not provided"
+    exit 0
+  esac
+done
+
+shopt -s extglob
+declare -a tags
+for df in Dockerfile-*; do
+  tags+=(${df#@(Dockerfile-)})
+done
+
+if [ "$list_tags" == 'y' ]; then
+  echo -e "Known tags to build:\n\t${tags[@]}"
+  exit 0
+fi
+
+if [ "${build_all}" == "" ] && [ "${#build_tags[@]}" == 0 ]; then
+  read -p "Build all tags? [y/n]: " -n 1 build_all; echo; echo
+fi
+
+if [ "$build_all" != 'y' ]; then
+  if [ "$build_tags" == "" ]; then
+    for t in ${tags[@]}; do
+      read -p "Build $t? [y/n]: " -n 1 build_this_tag; echo
+      if [ "$build_this_tag" == "y" ]; then
+        build_tags+=($t)
+      fi
+    done
+  else
+    for bt in "${build_tags[@]}"; do
+      if ! [[ "${tags[*]}" == *"$bt"* ]]; then
+        echo "Error: tag $bt is unknown"
+        exit 1
+      fi
+    done
+  fi
+else
+  build_tags=(${tags[@]})
+fi
+echo
+echo -e "Tags to build:\n\t${build_tags[@]}"
+echo
+if [ ${push_tags} == "" ]; then
+  read -p "Push tags to dockerhub? [y/n]: " -n 1 push_tags
+fi
 # Make sure we use buildkit
 export DOCKER_BUILDKIT=1
 
-docker buildx prune -a -f
-
-# Build images from scratch
-for tag in "${tags[@]}"; do
-  docker build --pull --no-cache -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+# Build images
+for tag in "${build_tags[@]}"; do
+  docker build --pull -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
 done
 
-# Make sure we are logged in
-# !!! DOCKERHUB_USER must be set in the environment
-# !!! DOCKERHUB_VAULT_ID must be set in the environment
-# !!! vault-keyring-client must be installed
-# !!! a password for DOCKERHUB_VAULT_ID must be set in keyring
-echo $(vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID}) | docker login -u ${DOCKERHUB_USER} --password-stdin
+if [ "$push_tags" == 'y' ]; then
+  # Make sure we are logged in
+  # !!! DOCKERHUB_USER must be set in the environment
+  # !!! DOCKERHUB_VAULT_ID must be set in the environment
+  # !!! vault-keyring-client must be installed
+  # !!! a password for DOCKERHUB_VAULT_ID must be set in keyring
+  echo $(vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID}) | docker login -u ${DOCKERHUB_USER} --password-stdin
 
-for tag in "${tags[@]}"; do
-  docker push thoteam/molecule_apache_openjdk8:${tag}
-done
+  for tag in "${build_tags[@]}"; do
+    docker push thoteam/molecule_apache_openjdk8:${tag}
+  done
 
-# Logout from github
-docker logout
+  # Logout from github
+  docker logout
+fi
