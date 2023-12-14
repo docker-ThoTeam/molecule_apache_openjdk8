@@ -3,7 +3,7 @@ set -e
 
 declare -a build_tags
 
-while getopts aplht: opt; do
+while getopts aplht:ucbk opt; do
   case $opt in
   a)
     build_all=y
@@ -20,16 +20,31 @@ while getopts aplht: opt; do
   t)
     build_tags+=($OPTARG)
     ;;
+  c)
+    no_cache="--no-cache"
+    ;;
+  u)
+    no_cache=""
+    ;;
+  b)
+    pull="--pull"
+    ;;
+  k)
+    pull=""
+    ;;
   h)
     echo "usage: $0 [-l] [-p|-n] ([-a] | [-t <tag1>] [-t <tag2>] ...) "
     echo "-l: list tags and exit"
     echo "-p|-n: push/don't push tags to dockerhub. If both provided latest wins"
     echo "-h: this help message"
     echo "-a: build all tags"
+    echo "-u|-c: use/clear cache for building."
+    echo "-b|-k: attempt/do not attempt to pull a newer base image"
     echo "If you don't provide -a, list as mans [-t tagname] you want"
     echo "tagnames are ignored if -a is passed"
     echo "All options (except -l and -h) are asked interactively if not provided"
     exit 0
+    ;;
   esac
 done
 
@@ -67,10 +82,25 @@ if [ "$build_all" != 'y' ]; then
 else
   build_tags=(${tags[@]})
 fi
+
 echo
 echo -e "Tags to build:\n\t${build_tags[@]}"
 echo
-if [ ${push_tags} == "" ]; then
+
+if [ -z ${no_cache+x} ]; then
+  read -p "Use build cache? [y/n]: " -n 1 use_cache; echo;
+  if [ "$use_cache" != "y" ]; then
+    no_cache="--no-cache"
+  fi
+fi
+
+if [ -z ${pull+x} ]; then
+  read -p "Attempt base image pull? [y/n]: " -n 1 pull_base; echo;
+  if [ "$pull_base" == "y" ]; then
+    pull="--pull"
+  fi
+fi
+if [ -z ${push_tags+x} ]; then
   read -p "Push tags to dockerhub? [y/n]: " -n 1 push_tags
 fi
 # Make sure we use buildkit
@@ -78,7 +108,7 @@ export DOCKER_BUILDKIT=1
 
 # Build images
 for tag in "${build_tags[@]}"; do
-  docker build --pull -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+  docker build "${pull}" "${no_cache}" -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
 done
 
 if [ "$push_tags" == 'y' ]; then
