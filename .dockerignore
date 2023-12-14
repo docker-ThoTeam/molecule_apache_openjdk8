@@ -1,1 +1,3 @@
-publish_docker_images
+build_and_push
+LICENSE
+README.md
