@@ -113,7 +113,7 @@ export DOCKER_BUILDKIT=1
 
 # Build images
 for tag in "${build_tags[@]}"; do
-  docker build "${pull}" "${no_cache}" -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+  docker build ${pull} ${no_cache} -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
 done
 
 if [ "$push_tags" == 'y' ]; then
