@@ -33,16 +33,21 @@ while getopts aplht:ucbk opt; do
     pull=""
     ;;
   h)
-    echo "usage: $0 [-l] [-p|-n] ([-a] | [-t <tag1>] [-t <tag2>] ...) "
-    echo "-l: list tags and exit"
-    echo "-p|-n: push/don't push tags to dockerhub. If both provided latest wins"
-    echo "-h: this help message"
-    echo "-a: build all tags"
-    echo "-u|-c: use/clear cache for building."
-    echo "-b|-k: attempt/do not attempt to pull a newer base image"
-    echo "If you don't provide -a, list as mans [-t tagname] you want"
-    echo "tagnames are ignored if -a is passed"
+    echo "usage: $0 <options> "
+    echo
+    echo "Options:"
+    echo -e "\t -h:\t\t this help message"
+    echo -e "\t -l:\t\t list known tags and exit"
+    echo -e "\t -u|-c:\t\t use cache for build / clear cache before building."
+    echo -e "\t -b|-k:\t\t attempt to pull newer image / do not pull image if it exists"
+    echo -e "\t -p|-n:\t\t push / don't push tags to dockerhub."
+    echo -e "\t -a:\t\t build all tags / build a specific tag"
+    echo -e "\t -t <name>:\t build this tag name"
+    echo
+    echo "If you don't provide -a, list as many -t <tag_name> as you want"
+    echo "Tag names are ignored if -a is passed"
     echo "All options (except -l and -h) are asked interactively if not provided"
+    echo
     exit 0
     ;;
   esac
