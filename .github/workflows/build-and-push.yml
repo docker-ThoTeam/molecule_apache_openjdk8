@@ -1,12 +1,12 @@
 on:
-  schedule:
-    - cron 0 0 * * 0
+  # schedule:
+  #   - cron 0 0 * * 0
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - 'build_and_push'
+    paths:
+      - 'Dockerfile-*'
+      - '**/build-and-push.yml'
 
 
 jobs:
