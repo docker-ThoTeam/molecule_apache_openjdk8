@@ -1,6 +1,6 @@
 on:
-  # schedule:
-  #   - cron 0 0 * * 0
+  schedule:
+    - cron: '0 0 * * 0'
   push:
     branches:
       - main
@@ -36,7 +36,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: .
+          # context: .
           file: Dockerfile-${{ matrix.docker_tag }}
           push: true
           tags: thoteam/molecule_apache_openjdk8:${{ matrix.docker_tag }}
