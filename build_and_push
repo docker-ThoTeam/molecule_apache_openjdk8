@@ -3,7 +3,7 @@ set -e
 
 declare -a build_tags
 
-while getopts aplht:ucbk opt; do
+while getopts hlucbkpnat: opt; do
   case $opt in
   a)
     build_all=y
@@ -18,7 +18,7 @@ while getopts aplht:ucbk opt; do
     list_tags=y
     ;;
   t)
-    build_tags+=($OPTARG)
+    build_tags+=("$OPTARG")
     ;;
   c)
     no_cache="--no-cache"
@@ -50,17 +50,21 @@ while getopts aplht:ucbk opt; do
     echo
     exit 0
     ;;
+  *)
+    echo Unknown flag
+    exit 1
+    ;;
   esac
 done
 
 shopt -s extglob
 declare -a tags
 for df in Dockerfile-*; do
-  tags+=(${df#@(Dockerfile-)})
+  tags+=("${df#@(Dockerfile-)}")
 done
 
 if [ "$list_tags" == 'y' ]; then
-  echo -e "Known tags to build:\n\t${tags[@]}"
+  echo -e "Known tags to build:\n\t${tags[*]}"
   exit 0
 fi
 
@@ -69,11 +73,11 @@ if [ "${build_all}" == "" ] && [ "${#build_tags[@]}" == 0 ]; then
 fi
 
 if [ "$build_all" != 'y' ]; then
-  if [ "$build_tags" == "" ]; then
-    for t in ${tags[@]}; do
+  if [ ${#build_tags[@]} -eq 0 ]; then
+    for t in "${tags[@]}"; do
       read -p "Build $t? [y/n]: " -n 1 build_this_tag; echo
       if [ "$build_this_tag" == "y" ]; then
-        build_tags+=($t)
+        build_tags+=("$t")
       fi
     done
   else
@@ -85,35 +89,35 @@ if [ "$build_all" != 'y' ]; then
     done
   fi
 else
-  build_tags=(${tags[@]})
+  build_tags=("${tags[@]}")
 fi
 
 echo
-echo -e "Tags to build:\n\t${build_tags[@]}"
+echo -e "Tags to build:\n\t${build_tags[*]}"
 echo
 
 if [ -z ${no_cache+x} ]; then
-  read -p "Use build cache? [y/n]: " -n 1 use_cache; echo;
+  read -rp "Use build cache? [y/n]: " -n 1 use_cache; echo;
   if [ "$use_cache" != "y" ]; then
     no_cache="--no-cache"
   fi
 fi
 
 if [ -z ${pull+x} ]; then
-  read -p "Attempt base image pull? [y/n]: " -n 1 pull_base; echo;
+  read -rp "Attempt base image pull? [y/n]: " -n 1 pull_base; echo;
   if [ "$pull_base" == "y" ]; then
     pull="--pull"
   fi
 fi
 if [ -z ${push_tags+x} ]; then
-  read -p "Push tags to dockerhub? [y/n]: " -n 1 push_tags
+  read -rp "Push tags to dockerhub? [y/n]: " -n 1 push_tags
 fi
 # Make sure we use buildkit
 export DOCKER_BUILDKIT=1
 
 # Build images
 for tag in "${build_tags[@]}"; do
-  docker build ${pull} ${no_cache} -f Dockerfile-${tag} -t thoteam/molecule_apache_openjdk8:${tag} .
+  docker build ${pull} ${no_cache} -f "Dockerfile-${tag}" -t "thoteam/molecule_apache_openjdk8:${tag}" .
 done
 
 if [ "$push_tags" == 'y' ]; then
@@ -122,10 +126,10 @@ if [ "$push_tags" == 'y' ]; then
   # !!! DOCKERHUB_VAULT_ID must be set in the environment
   # !!! vault-keyring-client must be installed
   # !!! a password for DOCKERHUB_VAULT_ID must be set in keyring
-  echo $(vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID}) | docker login -u ${DOCKERHUB_USER} --password-stdin
+  vault-keyring-client --vault-id ${DOCKERHUB_VAULT_ID} | docker login -u "${DOCKERHUB_USER}" --password-stdin
 
   for tag in "${build_tags[@]}"; do
-    docker push thoteam/molecule_apache_openjdk8:${tag}
+    docker push "thoteam/molecule_apache_openjdk8:${tag}"
   done
 
   # Logout from github
