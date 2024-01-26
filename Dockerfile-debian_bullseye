@@ -3,13 +3,13 @@ FROM debian:bullseye
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get update && \
     apt-get install -y curl && \
-    curl -o /usr/share/keyrings/adoptopenjdk.asc https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public && \
-    echo 'deb [signed-by=/usr/share/keyrings/adoptopenjdk.asc] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ bullseye main' > /etc/apt/sources.list.d/adoptopenjdk.list && \
+    curl -o /usr/share/keyrings/adoptium.asc https://packages.adoptium.net/artifactory/api/gpg/key/public && \
+    echo 'deb [signed-by=/usr/share/keyrings/adoptium.asc] https://packages.adoptium.net/artifactory/deb bullseye main' > /etc/apt/sources.list.d/adoptium.list && \
     apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y \
     	sudo \
-        adoptopenjdk-8-hotspot \
+        temurin-8-jdk \
         systemd \
         apache2 \
         python3-apt \
